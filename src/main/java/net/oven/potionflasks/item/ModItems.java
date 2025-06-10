@@ -13,7 +13,7 @@ public class ModItems {
             () -> new Item(new Item.Properties()));
 
     public static final DeferredItem<Item> POTION_FLASK = ITEMS.register("potion_flask",
-            () -> new PotionFlaskItem(new Item.Properties().durability(8)));
+            () -> new PotionFlaskItem(new Item.Properties().stacksTo(1)));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

@@ -15,9 +15,12 @@ import net.minecraft.world.item.alchemy.PotionContents;
 import net.minecraft.world.item.alchemy.Potions;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
+
+import net.oven.potionflasks.ModDataComponents;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
+import java.util.Objects;
 
 public class PotionFlaskItem extends Item {
     public PotionFlaskItem(Properties properties) {
@@ -28,12 +31,14 @@ public class PotionFlaskItem extends Item {
     public @NotNull ItemStack getDefaultInstance() {
         ItemStack itemstack = super.getDefaultInstance();
         itemstack.set(DataComponents.POTION_CONTENTS, new PotionContents(Potions.WATER));
+        itemstack.set(ModDataComponents.FLASK_CHARGES, 3);
         return itemstack;
     }
 
     @Override
     public @NotNull ItemStack finishUsingItem(@NotNull ItemStack stack, @NotNull Level level, @NotNull LivingEntity entityLiving) {
         Player player = entityLiving instanceof Player ? (Player) entityLiving : null;
+
         if (player instanceof ServerPlayer) {
             CriteriaTriggers.CONSUME_ITEM.trigger((ServerPlayer) player, stack);
         }
@@ -50,10 +55,13 @@ public class PotionFlaskItem extends Item {
             });
         }
 
-
+        int charges = Objects.requireNonNull(stack.get(ModDataComponents.FLASK_CHARGES));
         if (player != null) {
             player.awardStat(Stats.ITEM_USED.get(this));
-            stack.consume(1, player);
+            stack.set(ModDataComponents.FLASK_CHARGES, charges - 1);
+            if (charges == 0) {
+                stack.consume(1, player);
+            }
         }
 
         if (player == null || !player.hasInfiniteMaterials()) {
